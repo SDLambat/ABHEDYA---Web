@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #111111;
+  --color-accent: #D99B26;
+  --font-serif: 'Times New Roman', Times, Georgia, Cambria, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
+}
+
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  background-color: #FFFFFF;
+  color: #111827;
+  line-height: 1.55;
+}
+
+body {
+  background-color: #FFFFFF;
+  color: #111827;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, .interactive-tap {
+  transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out), box-shadow 160ms var(--ease-out), opacity 160ms var(--ease-out);
+}
+button:active:not(:disabled), .interactive-tap:active { transform: scale(0.97); }
+
+::selection { background-color: #FEF3C7; color: #451A03; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F3F4F6; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+.font-serif, .font-heading, .font-body { font-family: 'Times New Roman', Times, Georgia, serif; }
+.font-mono { font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace; }
+
+:focus-visible { outline: 2px solid #B45309; outline-offset: 2px; }
+
+/* Raman scan animation used in hero + optics page */
+@keyframes beamPulse { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
+@keyframes spectrumDraw { from { stroke-dashoffset: 1200 } to { stroke-dashoffset: 0 } }
+.beam-pulse { animation: beamPulse 1.8s ease-in-out infinite; }
+.spectrum-draw { stroke-dasharray: 1200; animation: spectrumDraw 2.4s var(--ease-out) forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .beam-pulse { animation: none; }
+  .spectrum-draw { animation: none; stroke-dasharray: none; }
+}
