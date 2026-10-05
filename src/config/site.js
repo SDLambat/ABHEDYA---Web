@@ -5,7 +5,7 @@
 //  paste the real URLs for Website / CAD / Report / Video / Git here.)
 // ─────────────────────────────────────────────────────────────
 export const LINKS = {
-  git: 'https://github.com/SDLambat/abhedya',        // ML model Git repo
+  git: 'https://github.com/SDLambat/ABHEDYA---Web',        // ML model Git repo
   video: '',      // Explanation video (YouTube)
   cad: '',        // CAD module
   report: '',     // Detailed report (online)

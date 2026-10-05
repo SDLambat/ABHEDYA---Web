@@ -4,7 +4,7 @@ Website for **ABHEDYA**, a portable non-contact Raman spectroscopy + edge-AI scr
 
 Built with React 19, Vite, Tailwind CSS v4, Framer Motion, and Lucide icons. Deployable to Cloudflare (`wrangler.jsonc` included) or any static host.
 
-Repository: [https://github.com/SDLambat/abhedya](https://github.com/SDLambat/abhedya)
+Repository: [https://github.com/SDLambat/ABHEDYA---Web](https://github.com/SDLambat/ABHEDYA---Web)
 
 ## Run
 

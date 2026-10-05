@@ -6,7 +6,7 @@
   "author": "Shyam D Lambat (https://github.com/SDLambat)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SDLambat/abhedya.git"
+    "url": "https://github.com/SDLambat/ABHEDYA---Web.git"
   },
   "scripts": {
     "dev": "vite",
