@@ -42,6 +42,8 @@ lerna-debug.log*
 .agents
 .agent
 .claude
-# Local helper scripts
-*.bat
+.codex
+
+# Cloudflare Wrangler
+.wrangler
 
