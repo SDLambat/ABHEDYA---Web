@@ -42,5 +42,6 @@ lerna-debug.log*
 .agents
 .agent
 .claude
-.codex
+# Local helper scripts
+*.bat
 
