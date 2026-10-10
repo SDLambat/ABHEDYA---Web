@@ -15,7 +15,10 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-const MODEL_PATH = '/models/cad/Qudraped/glb/Quadruped_Assembly_draco.glb';
+const MODEL_PARTS = [
+  '/models/cad/Qudraped/glb/Quadruped_Assembly_draco.part1',
+  '/models/cad/Qudraped/glb/Quadruped_Assembly_draco.part2',
+];
 
 // Explosive displacement vectors in native assembly coordinate space
 const SUBASSEMBLY_EXPLODE_VECTORS = {
@@ -179,8 +182,8 @@ export default function CadViewer3D() {
     };
   }, []);
 
-  // Load GLB Model
-  const loadModel = () => {
+  // Load Chunked GLB Model
+  const loadModel = async () => {
     const { scene } = threeRef.current;
     if (!scene) return;
 
@@ -188,135 +191,194 @@ export default function CadViewer3D() {
       isLoading: true,
       progress: 0,
       loadedMB: 0,
-      totalMB: 0,
+      totalMB: 27.0,
       error: null,
     });
 
-    const loader = new GLTFLoader();
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('/draco/');
-    loader.setDRACOLoader(dracoLoader);
+    try {
+      const totalBytes = 28329120; // 27.01 MiB
+      let loadedBytes = 0;
 
-    loader.load(
-      MODEL_PATH,
-      (gltf) => {
-        const root = gltf.scene;
+      // Fetch all chunk parts in parallel
+      const partsData = await Promise.all(
+        MODEL_PARTS.map(async (partUrl) => {
+          const res = await fetch(partUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status} loading CAD component chunk`);
 
-        // Rotate so that Z-up CAD model is Y-up in Three.js
-        root.rotation.x = -Math.PI / 2;
-        root.updateMatrixWorld(true);
+          const reader = res.body?.getReader();
+          if (!reader) {
+            const buf = await res.arrayBuffer();
+            loadedBytes += buf.byteLength;
+            const loadedMB = +(loadedBytes / (1024 * 1024)).toFixed(1);
+            setLoadingState((prev) => ({
+              ...prev,
+              progress: Math.min(99, Math.round((loadedBytes / totalBytes) * 100)),
+              loadedMB,
+              totalMB: 27.0,
+            }));
+            return new Uint8Array(buf);
+          }
 
-        // Compute bounding box after rotation to align ground plane and center
-        const box = new THREE.Box3().setFromObject(root);
-        const center = box.getCenter(new THREE.Vector3());
+          const chunks = [];
+          let partLoaded = 0;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            partLoaded += value.length;
+            loadedBytes += value.length;
 
-        // Offset root so bottom feet rest directly on y = 0 and centered horizontally
-        root.position.x = -center.x;
-        root.position.z = -center.z;
-        root.position.y = -box.min.y;
+            const loadedMB = +(loadedBytes / (1024 * 1024)).toFixed(1);
+            const percent = Math.min(99, Math.round((loadedBytes / totalBytes) * 100));
+            setLoadingState((prev) => ({
+              ...prev,
+              progress: percent,
+              loadedMB,
+              totalMB: 27.0,
+            }));
+          }
 
-        // Traverse meshes, enable shadows, tune PBR materials
-        root.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
+          const partBuffer = new Uint8Array(partLoaded);
+          let offset = 0;
+          for (const chunk of chunks) {
+            partBuffer.set(chunk, offset);
+            offset += chunk.length;
+          }
+          return partBuffer;
+        })
+      );
 
-            if (child.material) {
-              child.material = child.material.clone();
-              const name = (child.name || '').toLowerCase();
-              const parentName = (child.parent?.name || '').toLowerCase();
+      // Reassemble complete GLB ArrayBuffer
+      const combinedLength = partsData.reduce((acc, p) => acc + p.length, 0);
+      const combined = new Uint8Array(combinedLength);
+      let combinedOffset = 0;
+      for (const part of partsData) {
+        combined.set(part, combinedOffset);
+        combinedOffset += part.length;
+      }
 
-              if (
-                name.includes('screw') ||
-                name.includes('iso') ||
-                name.includes('standoff') ||
-                name.includes('ball_bearing') ||
-                name.includes('6800') ||
-                name.includes('insert')
-              ) {
-                // Precision stainless steel / brass hardware
-                child.material.metalness = 0.85;
-                child.material.roughness = 0.22;
-              } else if (name.includes('servo') || parentName.includes('servo')) {
-                // High-torque digital servomotors
-                child.material.metalness = 0.35;
-                child.material.roughness = 0.35;
-              } else if (name.includes('foot') || parentName.includes('foot')) {
-                // High traction TPU ground dampers
-                child.material.metalness = 0.1;
-                child.material.roughness = 0.7;
-              } else {
-                // Lightweight composite plates & chassis
-                child.material.metalness = 0.3;
-                child.material.roughness = 0.38;
+      setLoadingState((prev) => ({
+        ...prev,
+        progress: 100,
+        loadedMB: 27.0,
+        totalMB: 27.0,
+      }));
+
+      // Parse with GLTFLoader & DRACOLoader
+      const loader = new GLTFLoader();
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('/draco/');
+      loader.setDRACOLoader(dracoLoader);
+
+      loader.parse(
+        combined.buffer,
+        '/',
+        (gltf) => {
+          const root = gltf.scene;
+
+          // Rotate so that Z-up CAD model is Y-up in Three.js
+          root.rotation.x = -Math.PI / 2;
+          root.updateMatrixWorld(true);
+
+          // Compute bounding box after rotation to align ground plane and center
+          const box = new THREE.Box3().setFromObject(root);
+          const center = box.getCenter(new THREE.Vector3());
+
+          // Offset root so bottom feet rest directly on y = 0 and centered horizontally
+          root.position.x = -center.x;
+          root.position.z = -center.z;
+          root.position.y = -box.min.y;
+
+          // Traverse meshes, enable shadows, tune PBR materials
+          root.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+
+              if (child.material) {
+                child.material = child.material.clone();
+                const name = (child.name || '').toLowerCase();
+                const parentName = (child.parent?.name || '').toLowerCase();
+
+                if (
+                  name.includes('screw') ||
+                  name.includes('iso') ||
+                  name.includes('standoff') ||
+                  name.includes('ball_bearing') ||
+                  name.includes('6800') ||
+                  name.includes('insert')
+                ) {
+                  // Precision stainless steel / brass hardware
+                  child.material.metalness = 0.85;
+                  child.material.roughness = 0.22;
+                } else if (name.includes('servo') || parentName.includes('servo')) {
+                  // High-torque digital servomotors
+                  child.material.metalness = 0.35;
+                  child.material.roughness = 0.35;
+                } else if (name.includes('foot') || parentName.includes('foot')) {
+                  // High traction TPU ground dampers
+                  child.material.metalness = 0.1;
+                  child.material.roughness = 0.7;
+                } else {
+                  // Lightweight composite plates & chassis
+                  child.material.metalness = 0.3;
+                  child.material.roughness = 0.38;
+                }
               }
             }
-          }
-        });
+          });
 
-        // Cache subassembly references and their baseline positions
-        const subMap = new Map();
-        const stepRoot = root.getObjectByName('Quadruped_Assembly_STEPstep') || root;
+          // Cache subassembly references and their baseline positions
+          const subMap = new Map();
+          const stepRoot = root.getObjectByName('Quadruped_Assembly_STEPstep') || root;
 
-        Object.keys(SUBASSEMBLY_EXPLODE_VECTORS).forEach((subName) => {
-          const subObj = stepRoot.getObjectByName(subName);
-          if (subObj) {
-            subMap.set(subName, {
-              object: subObj,
-              originalPos: subObj.position.clone(),
-            });
-          }
-        });
+          Object.keys(SUBASSEMBLY_EXPLODE_VECTORS).forEach((subName) => {
+            const subObj = stepRoot.getObjectByName(subName);
+            if (subObj) {
+              subMap.set(subName, {
+                object: subObj,
+                originalPos: subObj.position.clone(),
+              });
+            }
+          });
 
-        scene.add(root);
+          scene.add(root);
 
-        threeRef.current.modelRoot = root;
-        threeRef.current.subassemblies = subMap;
+          threeRef.current.modelRoot = root;
+          threeRef.current.subassemblies = subMap;
 
-        setLoadingState({
-          isLoading: false,
-          progress: 100,
-          loadedMB: 28.3,
-          totalMB: 28.3,
-          error: null,
-        });
+          setLoadingState({
+            isLoading: false,
+            progress: 100,
+            loadedMB: 27.0,
+            totalMB: 27.0,
+            error: null,
+          });
 
-        dracoLoader.dispose();
-      },
-      (xhr) => {
-        if (xhr.lengthComputable && xhr.total > 0) {
-          const loadedMB = +(xhr.loaded / (1024 * 1024)).toFixed(1);
-          const totalMB = +(xhr.total / (1024 * 1024)).toFixed(1);
-          const percent = Math.min(100, Math.round((xhr.loaded / xhr.total) * 100));
-          setLoadingState((prev) => ({
-            ...prev,
-            progress: percent,
-            loadedMB,
-            totalMB,
-          }));
-        } else if (xhr.loaded > 0) {
-          const loadedMB = +(xhr.loaded / (1024 * 1024)).toFixed(1);
-          const percent = Math.min(99, Math.round((loadedMB / 28.3) * 100));
-          setLoadingState((prev) => ({
-            ...prev,
-            progress: percent,
-            loadedMB,
-            totalMB: 28.3,
-          }));
+          dracoLoader.dispose();
+        },
+        (parseErr) => {
+          console.error('Failed to parse 3D assembly GLB:', parseErr);
+          setLoadingState({
+            isLoading: false,
+            progress: 0,
+            loadedMB: 0,
+            totalMB: 0,
+            error: `Failed to parse 3D CAD model (${parseErr?.message || 'Parser error'}). Please retry.`,
+          });
+          dracoLoader.dispose();
         }
-      },
-      (err) => {
-        console.error('Failed to load GLB quadruped model:', err);
-        const detail = err?.message || 'Network or parser error';
-        setLoadingState({
-          isLoading: false,
-          progress: 0,
-          loadedMB: 0,
-          totalMB: 0,
-          error: `Failed to load 3D CAD model file (${detail}). Please check connection and retry.`,
-        });
-      }
-    );
+      );
+    } catch (err) {
+      console.error('Failed to load CAD model chunks:', err);
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        loadedMB: 0,
+        totalMB: 0,
+        error: `Failed to load 3D CAD model (${err?.message || 'Network error'}). Please check connection and retry.`,
+      });
+    }
   };
 
   useEffect(() => {
