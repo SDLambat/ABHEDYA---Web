@@ -5,20 +5,32 @@ import logo from '../assets/images/logo.png';
 import { GithubIcon, YoutubeIcon } from './Icons';
 import { LINKS, DOCS } from '../config/site';
 
-export const NAV_ITEMS = [
+const NAV_ITEMS = [
   { id: 'overview', label: 'Overview' },
   { id: 'optics', label: 'Optics' },
   { id: 'workflow', label: 'Workflow' },
   { id: 'feasibility', label: 'Feasibility' },
   { id: 'hardware', label: 'Hardware' },
+  { id: 'cad%20module', label: 'Cad Module' },
+  { id: 'Explanation%20Video', label: 'Explanation Video' },
   { id: 'impact', label: 'Impact' },
-  { id: 'docs', label: 'Submission' },
+  { id: 'report', label: 'Report' },
   { id: 'team', label: 'Team' },
 ];
 
 export default function Navbar({ activePage, onNavigate }) {
   const [open, setOpen] = useState(false);
   const go = (id) => { onNavigate(id); setOpen(false); };
+  const isItemActive = (itemId) => {
+    if (activePage === itemId) return true;
+    if (itemId === 'cad%20module' && (activePage === 'cad module' || activePage === 'cad')) return true;
+    if (
+      (itemId === 'Explanation%20Video' || itemId === 'explanation%20video') &&
+      (activePage === 'Explanation%20Video' || activePage === 'explanation%20video' || activePage === 'explanation video' || activePage === 'video')
+    ) return true;
+    if (itemId === 'report' && (activePage === 'docs' || activePage === 'report')) return true;
+    return false;
+  };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
@@ -40,7 +52,7 @@ export default function Navbar({ activePage, onNavigate }) {
 
         <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {NAV_ITEMS.map((item) => {
-            const active = activePage === item.id;
+            const active = isItemActive(item.id);
             return (
               <button
                 key={item.id}
@@ -77,9 +89,9 @@ export default function Navbar({ activePage, onNavigate }) {
             href={DOCS.submissionPath}
             download={DOCS.submissionName}
             className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gray-950 hover:bg-black text-amber-300 text-xs font-semibold shadow-xs"
-            title="Download the SIH 2026 submission (PDF)"
+            title="Download the SIH 2026 report (PDF)"
           >
-            <span>Submission PDF</span>
+            <span>Report PDF</span>
             <Download className="w-3.5 h-3.5" />
           </a>
           <button
@@ -109,7 +121,7 @@ export default function Navbar({ activePage, onNavigate }) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.03, duration: 0.2 }}
                 onClick={() => go(item.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-base ${activePage === item.id ? 'bg-amber-50 text-amber-900 font-bold border border-amber-300' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-base ${isItemActive(item.id) ? 'bg-amber-50 text-amber-900 font-bold border border-amber-300' : 'text-gray-700 hover:bg-gray-50'}`}
               >
                 {item.label}
               </motion.button>
@@ -118,7 +130,7 @@ export default function Navbar({ activePage, onNavigate }) {
               <a href={DOCS.submissionPath} download={DOCS.submissionName}
                  className="py-2.5 px-3 rounded-lg bg-gray-950 text-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5">
                 <FileText className="w-3.5 h-3.5" />
-                <span>Download submission PDF</span>
+                <span>Download report PDF</span>
               </a>
             </div>
           </motion.div>

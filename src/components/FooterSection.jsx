@@ -12,8 +12,10 @@ const COL_A = [
 ];
 const COL_B = [
   { id: 'hardware', label: 'Components & Block Diagram' },
+  { id: 'cad%20module', label: 'CAD Module' },
+  { id: 'Explanation%20Video', label: 'Explanation Video' },
   { id: 'impact', label: 'Impact & Benefits' },
-  { id: 'docs', label: 'SIH 2026 Submission' },
+  { id: 'report', label: 'SIH 2026 Report' },
   { id: 'team', label: 'Team ABHEDYA' },
 ];
 
@@ -69,7 +71,7 @@ export default function FooterSection({ onNavigate, activePage }) {
               download={DOCS.submissionName}
               className="w-full px-3 py-2 rounded-lg bg-white border border-gray-300 hover:border-gray-400 text-xs text-gray-900 flex items-center justify-between shadow-2xs"
             >
-              <span>SIH Submission (PDF)</span>
+              <span>SIH Report (PDF)</span>
               <Download className="w-3.5 h-3.5 text-amber-800" />
             </a>
           </div>

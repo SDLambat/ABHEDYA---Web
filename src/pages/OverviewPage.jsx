@@ -185,12 +185,12 @@ export default function OverviewPage({ onNavigate }) {
       {/* CALLOUT */}
       <Reveal className="border-t border-gray-200 pt-12 sm:pt-16 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="space-y-2 max-w-xl">
-          <h3 className="text-xl font-bold text-gray-950">Read the full SIH 2026 submission</h3>
-          <p className="text-base text-gray-700">The complete slide deck for problem statement {SIH.problemId} is available to read on this site or download as a PDF.</p>
+          <h3 className="text-xl font-bold text-gray-950">Read the full SIH 2026 report</h3>
+          <p className="text-base text-gray-700">The complete report deck for problem statement {SIH.problemId} is available to read on this site or download as a PDF.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => onNavigate('docs')}
-            className="px-5 py-2.5 rounded-lg bg-gray-950 hover:bg-black text-amber-300 text-sm cursor-pointer shadow-xs">Read Submission</motion.button>
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => onNavigate('report')}
+            className="px-5 py-2.5 rounded-lg bg-gray-950 hover:bg-black text-amber-300 text-sm cursor-pointer shadow-xs">Read Report</motion.button>
           <a href={DOCS.submissionPath} download={DOCS.submissionName}
             className="px-5 py-2.5 rounded-lg bg-white hover:bg-gray-50 text-gray-900 text-sm border border-gray-300 flex items-center gap-2">
             <Download className="w-4 h-4 text-amber-800" /><span>Download PDF</span>

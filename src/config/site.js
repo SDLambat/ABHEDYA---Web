@@ -5,10 +5,10 @@
 //  paste the real URLs for Website / CAD / Report / Video / Git here.)
 // ─────────────────────────────────────────────────────────────
 export const LINKS = {
-  git: 'https://github.com/SDLambat/ABHEDYA---Web',        // ML model Git repo
-  video: '',      // Explanation video (YouTube)
-  cad: '',        // CAD module
-  report: '',     // Detailed report (online)
+  git: 'https://github.com/SDLambat/ABHEDYA----ML-model',        // ML model Git repo
+  video: 'https://youtu.be/ijTKWyh_wr4',      // Explanation video (YouTube)
+  cad: '#cad%20module',        // CAD module
+  report: '#report',     // Detailed report (online)
   workflow: '',   // Detailed workflow (online)
 };
 
@@ -30,9 +30,9 @@ export const SIH = {
 // Add github / linkedin / mail (and a short bio) to any member and the icons appear automatically.
 export const TEAM = [
   { name: 'Soham Gupta', role: 'Team Captain', isCaptain: true, photo: 'soham', bio: '', github: '', linkedin: '', mail: '' },
-  { name: 'Nikhil', role: 'Team Member', photo: 'nikhil', bio: '', github: '', linkedin: '', mail: '' },
-  { name: 'Rasika', role: 'Team Member', photo: 'rasika', bio: '', github: '', linkedin: '', mail: '' },
   { name: 'Shyam Lambat', role: 'Team Member', photo: 'shyam', bio: 'E&TC Engineering Student | Robotics & Embedded Systems | AI & Computer Vision', github: 'https://github.com/SDLambat', linkedin: 'https://www.linkedin.com/in/shyam-lambat/', mail: '' },
+  { name: 'Nikhil', role: 'Team Member', photo: 'nikhil', bio: '', github: '', linkedin: '', mail: '' },
   { name: 'Simi', role: 'Team Member', photo: 'simi', bio: '', github: '', linkedin: '', mail: '' },
   { name: 'Aryan', role: 'Team Member', photo: 'aryan', bio: '', github: '', linkedin: '', mail: '' },
+  { name: 'Rasika', role: 'Team Member', photo: 'rasika', bio: '', github: '', linkedin: '', mail: '' },
 ];

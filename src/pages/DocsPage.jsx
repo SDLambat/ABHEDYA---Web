@@ -1,67 +1,96 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Download, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import React from 'react';
+import { Download, ExternalLink, FileText, Maximize2 } from 'lucide-react';
 import PageHeader, { Reveal } from '../components/PageHeader';
-import { LINKS, DOCS, SIH } from '../config/site';
-
-import s1 from '../assets/slides/slide-1.jpg';
-import s2 from '../assets/slides/slide-2.jpg';
-import s3 from '../assets/slides/slide-3.jpg';
-import s4 from '../assets/slides/slide-4.jpg';
-import s5 from '../assets/slides/slide-5.jpg';
-
-const SLIDES = [
-  { src: s1, title: 'Cover' },
-  { src: s2, title: 'Proposed solution' },
-  { src: s3, title: 'Technical approach' },
-  { src: s4, title: 'Feasibility and viability' },
-  { src: s5, title: 'Impact and benefits' },
-];
+import { LINKS, SIH } from '../config/site';
+import submissionPdf from '../assets/slides/Abhedya submission (1).pdf';
 
 export default function DocsPage() {
-  const [i, setI] = useState(0);
-  const go = (n) => setI((n + SLIDES.length) % SLIDES.length);
   const extra = [
-    ['Website', null], ['CAD module', LINKS.cad], ['Detailed workflow', LINKS.workflow], ['Report', LINKS.report], ['Explanation video', LINKS.video], ['ML model Git repo', LINKS.git],
+    ['Website', null],
+    ['CAD module', LINKS.cad],
+    ['Detailed workflow', LINKS.workflow],
+    ['Report', LINKS.report],
+    ['Explanation video', LINKS.video],
+    ['ML model Git repo', LINKS.git],
   ].filter(([, url]) => url);
 
   return (
     <div className="space-y-12 sm:space-y-16 max-w-5xl mx-auto">
-      <PageHeader title="SIH 2026 Submission">
-        The official slide deck for {SIH.problemId}. Read it here slide by slide, or download the PDF.
+      <PageHeader title="SIH 2026 Report">
+        The official report and presentation deck for {SIH.problemId}. Browse the report below or download the PDF document.
       </PageHeader>
 
-      <Reveal className="space-y-5">
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-2 sm:p-4 shadow-xs">
-          <AnimatePresence mode="wait">
-            <motion.img key={i} src={SLIDES[i].src} alt={`Slide ${i + 1}: ${SLIDES[i].title}`}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="w-full h-auto rounded-lg border border-gray-200 bg-white" />
-          </AnimatePresence>
+      <Reveal className="space-y-4">
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-xs overflow-hidden flex flex-col">
+          {/* Document header bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-gray-50/80 border-b border-gray-200">
+            <div className="flex items-center gap-2.5">
+              <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                <FileText className="w-4 h-4" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-gray-900 leading-none">ABHEDYA Official Report Deck</p>
+                <p className="text-xs text-gray-500 mt-0.5">Smart India Hackathon 2026 • Official Document</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <a
+                href={submissionPdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 shadow-xs transition-colors"
+                title="Open PDF in new tab"
+              >
+                <Maximize2 className="w-3.5 h-3.5 text-gray-500" />
+                <span>Open Fullscreen</span>
+              </a>
+              <a
+                href={submissionPdf}
+                download="Abhedya_submission.pdf"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-950 hover:bg-black text-amber-300 shadow-xs transition-colors"
+                title="Download PDF"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Embedded PDF Viewer */}
+          <div className="relative w-full bg-gray-100 min-h-[550px] sm:min-h-[700px] lg:min-h-[820px]">
+            <iframe
+              src={`${submissionPdf}#toolbar=1&navpanes=0`}
+              title="ABHEDYA SIH 2026 Report Deck"
+              className="w-full h-[550px] sm:h-[700px] lg:h-[820px] border-0"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <button onClick={() => go(i - 1)} aria-label="Previous slide" className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer"><ChevronLeft className="w-5 h-5" /></button>
-          <span className="text-sm text-gray-700">Slide {i + 1} of {SLIDES.length}: <strong>{SLIDES[i].title}</strong></span>
-          <button onClick={() => go(i + 1)} aria-label="Next slide" className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer"><ChevronRight className="w-5 h-5" /></button>
-        </div>
-
-        <div className="grid grid-cols-5 gap-2">
-          {SLIDES.map((s, n) => (
-            <button key={s.title} onClick={() => setI(n)} aria-label={`Go to slide ${n + 1}: ${s.title}`}
-              className={`rounded-md overflow-hidden border-2 cursor-pointer ${n === i ? 'border-amber-500' : 'border-gray-200 hover:border-gray-400'}`}>
-              <img src={s.src} alt="" loading="lazy" className="w-full h-auto" />
-            </button>
-          ))}
-        </div>
+        <p className="text-xs text-gray-500 text-center sm:text-left px-1">
+          Having trouble viewing the embedded document on your device?{' '}
+          <a
+            href={submissionPdf}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-600 hover:underline font-medium inline-flex items-center gap-0.5"
+          >
+            Click here to open the PDF directly <ExternalLink className="w-3 h-3 inline" />
+          </a>
+        </p>
       </Reveal>
 
       <Reveal className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 pt-12">
         <div className="p-6 rounded-2xl border border-gray-200 bg-white space-y-3">
           <h2 className="text-xl font-bold text-gray-950">Download</h2>
-          <p className="text-sm text-gray-700">Full submission deck, exactly as submitted.</p>
-          <a href={DOCS.submissionPath} download={DOCS.submissionName} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-950 hover:bg-black text-amber-300 text-sm shadow-xs">
-            <Download className="w-4 h-4" /><span>Submission PDF</span>
+          <p className="text-sm text-gray-700">Full report deck, exactly as submitted.</p>
+          <a
+            href={submissionPdf}
+            download="Abhedya_submission.pdf"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-950 hover:bg-black text-amber-300 text-sm shadow-xs font-medium"
+          >
+            <Download className="w-4 h-4" />
+            <span>Report PDF</span>
           </a>
         </div>
         <div className="p-6 rounded-2xl border border-gray-200 bg-white space-y-3">

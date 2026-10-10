@@ -10,32 +10,78 @@ const OpticsPage = lazy(() => import('./pages/OpticsPage'));
 const WorkflowPage = lazy(() => import('./pages/WorkflowPage'));
 const FeasibilityPage = lazy(() => import('./pages/FeasibilityPage'));
 const HardwarePage = lazy(() => import('./pages/HardwarePage'));
+const CadPage = lazy(() => import('./pages/CadPage'));
+const VideoPage = lazy(() => import('./pages/VideoPage'));
 const ImpactPage = lazy(() => import('./pages/ImpactPage'));
 const DocsPage = lazy(() => import('./pages/DocsPage'));
 const TeamPage = lazy(() => import('./pages/TeamPage'));
 
-const VALID_PAGES = ['overview', 'optics', 'workflow', 'feasibility', 'hardware', 'impact', 'docs', 'team'];
+const normalizePageId = (raw) => {
+  if (!raw) return 'overview';
+  const clean = raw.replace(/^#\/?/, '').trim();
+  const lower = clean.toLowerCase();
+  try {
+    const decoded = decodeURIComponent(clean).toLowerCase();
+    if (decoded === 'cad module' || lower === 'cad%20module' || lower === 'cad' || lower === 'cad-module') {
+      return 'cad%20module';
+    }
+    if (
+      decoded === 'explanation video' ||
+      lower === 'explanation%20video' ||
+      lower === 'explanation-video' ||
+      lower === 'video'
+    ) {
+      return 'Explanation%20Video';
+    }
+    if (decoded === 'report' || lower === 'report' || lower === 'docs' || decoded === 'docs') {
+      return 'report';
+    }
+    return decoded;
+  } catch {
+    return lower;
+  }
+};
+
+const VALID_PAGES = [
+  'overview',
+  'optics',
+  'workflow',
+  'feasibility',
+  'hardware',
+  'cad%20module',
+  'cad module',
+  'cad',
+  'Explanation%20Video',
+  'explanation%20video',
+  'explanation video',
+  'video',
+  'impact',
+  'report',
+  'docs',
+  'team',
+];
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [activePage, setActivePage] = useState(() => {
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    return VALID_PAGES.includes(hash) ? hash : 'overview';
+    const norm = normalizePageId(window.location.hash);
+    return VALID_PAGES.includes(norm) ? norm : 'overview';
   });
 
   useEffect(() => {
     const onHash = () => {
-      const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (VALID_PAGES.includes(hash)) setActivePage(hash);
+      const norm = normalizePageId(window.location.hash);
+      if (VALID_PAGES.includes(norm)) setActivePage(norm);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
   const handleNavigate = useCallback((pageId) => {
-    if (VALID_PAGES.includes(pageId)) {
-      setActivePage(pageId);
-      window.location.hash = pageId;
+    const target = normalizePageId(pageId);
+    if (VALID_PAGES.includes(target) || VALID_PAGES.includes(pageId)) {
+      setActivePage(target);
+      window.location.hash = target;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
@@ -46,8 +92,19 @@ export default function App() {
       case 'workflow': return <WorkflowPage onNavigate={handleNavigate} />;
       case 'feasibility': return <FeasibilityPage onNavigate={handleNavigate} />;
       case 'hardware': return <HardwarePage onNavigate={handleNavigate} />;
+      case 'cad%20module':
+      case 'cad module':
+      case 'cad':
+        return <CadPage onNavigate={handleNavigate} />;
+      case 'Explanation%20Video':
+      case 'explanation%20video':
+      case 'explanation video':
+      case 'video':
+        return <VideoPage onNavigate={handleNavigate} />;
       case 'impact': return <ImpactPage onNavigate={handleNavigate} />;
-      case 'docs': return <DocsPage onNavigate={handleNavigate} />;
+      case 'report':
+      case 'docs':
+        return <DocsPage onNavigate={handleNavigate} />;
       case 'team': return <TeamPage onNavigate={handleNavigate} />;
       default: return <OverviewPage onNavigate={handleNavigate} />;
     }

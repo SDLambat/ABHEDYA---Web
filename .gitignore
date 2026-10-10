@@ -47,3 +47,11 @@ lerna-debug.log*
 # Cloudflare Wrangler
 .wrangler
 
+# Archives & Temporary binaries
+*.zip
+*.tar.gz
+*.7z
+*.step
+*.stp
+*.ipt
+*.iam
